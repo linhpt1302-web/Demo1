@@ -47,7 +47,7 @@ class DataService {
         const parsed: Member[] = JSON.parse(rawMembers);
         const hasOldData = parsed.some((m) => m.full_name === 'Nguyễn Thành Nam' || m.full_name === 'Trần Minh Hoàng');
         const cuong = parsed.find((m) => m.full_name === 'Hoàng Mạnh Cường');
-        if (hasOldData || !cuong || parsed.length < 27 || cuong.elo_points !== 1100) {
+        if (hasOldData || !cuong || parsed.length < 27 || cuong.elo_points !== 1100 || (cuong.matches_played || 0) > 0) {
           shouldMigrateMembers = true;
         }
       } catch {
