@@ -38,6 +38,7 @@ class DataService {
 
   private initLocalStorage() {
     const rawMembers = localStorage.getItem(STORAGE_KEYS.MEMBERS);
+    const rawTournaments = localStorage.getItem(STORAGE_KEYS.TOURNAMENTS);
     let shouldMigrateMembers = false;
 
     if (!rawMembers) {
@@ -47,7 +48,8 @@ class DataService {
         const parsed: Member[] = JSON.parse(rawMembers);
         const hasOldData = parsed.some((m) => m.full_name === 'Nguyễn Thành Nam' || m.full_name === 'Trần Minh Hoàng');
         const cuong = parsed.find((m) => m.full_name === 'Hoàng Mạnh Cường');
-        if (hasOldData || !cuong || parsed.length < 27 || cuong.elo_points !== 1100 || (cuong.matches_played || 0) > 0) {
+        const anyHasStats = parsed.some((m) => (m.matches_played || 0) > 0 || (m.matches_won || 0) > 0 || (m.matches_lost || 0) > 0 || (m.current_streak || 0) > 0);
+        if (hasOldData || !cuong || parsed.length < 27 || cuong.elo_points !== 1100 || anyHasStats) {
           shouldMigrateMembers = true;
         }
       } catch {
@@ -60,6 +62,11 @@ class DataService {
       localStorage.setItem(STORAGE_KEYS.TOURNAMENTS, JSON.stringify(INITIAL_TOURNAMENTS));
       localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify(INITIAL_MATCHES));
       localStorage.setItem(STORAGE_KEYS.NEWS, JSON.stringify(INITIAL_NEWS));
+    }
+
+    // Always clear demo tournament if present
+    if (rawTournaments && rawTournaments.includes('tour_autumn_2026')) {
+      localStorage.setItem(STORAGE_KEYS.TOURNAMENTS, JSON.stringify([]));
     }
 
     if (!localStorage.getItem(STORAGE_KEYS.TOURNAMENTS)) {
