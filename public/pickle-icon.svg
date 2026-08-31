@@ -1,0 +1,58 @@
+<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#1E293B" />
+      <stop offset="50%" stopColor="#0F172A" />
+      <stop offset="100%" stopColor="#070B14" />
+    </linearGradient>
+    <linearGradient id="limeNeon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#F7FEE7" />
+      <stop offset="30%" stopColor="#D4FF00" />
+      <stop offset="100%" stopColor="#84CC16" />
+    </linearGradient>
+    <linearGradient id="coralGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#FF8A00" />
+      <stop offset="100%" stopColor="#FF5E36" />
+    </linearGradient>
+    <linearGradient id="paddleLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#06B6D4" />
+      <stop offset="100%" stopColor="#0284C7" />
+    </linearGradient>
+    <linearGradient id="paddleRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#D4FF00" />
+      <stop offset="100%" stopColor="#A3E635" />
+    </linearGradient>
+  </defs>
+
+  <!-- Outer Rounded Shield Base -->
+  <rect x="6" y="6" width="108" height="108" rx="28" fill="url(#shieldGrad)" stroke="url(#limeNeon)" stroke-width="4" />
+
+  <!-- Crossed Paddle 1 (Left - Cyan) -->
+  <g transform="rotate(-30 60 60)">
+    <rect x="48" y="22" width="24" height="34" rx="8" fill="#0F172A" stroke="url(#paddleLeft)" stroke-width="3" />
+    <path d="M58 56 V88" stroke="#E2E8F0" stroke-width="4.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Crossed Paddle 2 (Right - Lime) -->
+  <g transform="rotate(30 60 60)">
+    <rect x="48" y="22" width="24" height="34" rx="8" fill="#0F172A" stroke="url(#paddleRight)" stroke-width="3" />
+    <path d="M58 56 V88" stroke="#E2E8F0" stroke-width="4.5" stroke-linecap="round" />
+  </g>
+
+  <!-- Center Glowing Pickleball -->
+  <circle cx="60" cy="58" r="22" fill="url(#limeNeon)" stroke="#4D7C0F" stroke-width="1.5" />
+  <circle cx="53" cy="51" r="5" fill="#FFFFFF" fill-opacity="0.6" />
+  <!-- Ball Holes -->
+  <circle cx="60" cy="46" r="2.8" fill="#1E293B" />
+  <circle cx="60" cy="70" r="2.8" fill="#1E293B" />
+  <circle cx="48" cy="58" r="2.8" fill="#1E293B" />
+  <circle cx="72" cy="58" r="2.8" fill="#1E293B" />
+  <circle cx="51" cy="49" r="2.4" fill="#1E293B" />
+  <circle cx="69" cy="49" r="2.4" fill="#1E293B" />
+  <circle cx="51" cy="67" r="2.4" fill="#1E293B" />
+  <circle cx="69" cy="67" r="2.4" fill="#1E293B" />
+  <circle cx="60" cy="58" r="3.2" fill="#0F172A" />
+
+  <!-- Corner Sparkle -->
+  <path d="M96 22 L98 27 L103 29 L98 31 L96 36 L94 31 L89 29 L94 27 Z" fill="url(#coralGlow)" />
+</svg>
