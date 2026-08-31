@@ -1,7 +1,7 @@
 import React from 'react';
 import { Member, Tournament } from '../../types';
 import { useAuth } from '../../context/AuthContext';
-import { Trophy, Award, Users, UserPlus, Flame, Play, Sparkles, ArrowRight } from 'lucide-react';
+import { Trophy, Award, UserPlus, Sparkles, ArrowRight } from 'lucide-react';
 
 interface HeroSectionProps {
   members: Member[];
@@ -13,26 +13,34 @@ interface HeroSectionProps {
 
 export const HeroSection: React.FC<HeroSectionProps> = ({
   members,
-  tournaments,
+  tournaments: _tournaments,
   setActiveTab,
   onOpenJoinModal,
   onOpenRecordMatchModal,
 }) => {
   const { isAdmin } = useAuth();
-  const topPlayer = [...members].sort((a, b) => b.dupr_rating - a.dupr_rating)[0];
-  const activeTournament = tournaments.find((t) => t.status !== 'completed') || tournaments[0];
+
+  // Sort members for Top 1, Top 2, Top 3 ranking
+  const sortedMembers = [...members].sort((a, b) => {
+    if (b.elo_points !== a.elo_points) return b.elo_points - a.elo_points;
+    if (b.dupr_rating !== a.dupr_rating) return b.dupr_rating - a.dupr_rating;
+    return (b.matches_won || 0) - (a.matches_won || 0);
+  });
+
+  const top1 = sortedMembers[0];
+  const top2 = sortedMembers[1];
+  const top3 = sortedMembers[2];
 
   return (
     <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-pickle-navy to-pickle-dark border border-slate-200/20 dark:border-pickle-border shadow-2xl p-6 sm:p-10 lg:p-12 text-white">
       {/* Background Decorative Blur Orbs */}
       <div className="absolute -top-24 -right-24 w-96 h-96 bg-pickle-lime/15 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-pickle-coral/15 rounded-full blur-3xl pointer-events-none"></div>
-      
+
       {/* Grid pattern background */}
       <div className="absolute inset-0 court-grid-pattern opacity-40 pointer-events-none"></div>
 
-      <div className="relative z-10 max-w-4xl space-y-6">
-        
+      <div className="relative z-10 max-w-5xl space-y-6">
         {/* Top Tag */}
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-pickle-lime/10 border border-pickle-lime/30 text-xs font-black uppercase tracking-wider text-pickle-lime">
           <Sparkles className="w-4 h-4" />
@@ -71,81 +79,142 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
           </button>
 
           <button
-            onClick={() => setActiveTab('tournaments')}
+            onClick={() => setActiveTab('leaderboard')}
             className="flex items-center gap-2 px-6 py-3.5 bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs sm:text-sm rounded-2xl backdrop-blur-md hover:scale-105 active:scale-95 transition-all"
           >
-            <Trophy className="w-4 h-4 text-pickle-lime" />
-            <span>Xem Giải Đấu</span>
+            <Trophy className="w-4 h-4 text-amber-400" />
+            <span>Bảng Xếp Hạng DUPR/ELO</span>
             <ArrowRight className="w-4 h-4 text-slate-400" />
           </button>
 
           <button
-            onClick={() => setActiveTab('leaderboard')}
+            onClick={() => setActiveTab('tournaments')}
             className="flex items-center gap-2 px-5 py-3.5 text-xs sm:text-sm font-semibold text-slate-300 hover:text-white transition-colors"
           >
-            <Award className="w-4 h-4 text-amber-400" />
-            <span>Bảng Xếp Hạng</span>
+            <Award className="w-4 h-4 text-pickle-lime" />
+            <span>Giải Đấu</span>
           </button>
         </div>
 
-        {/* Live Highlight Cards in Hero */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-white/10">
-          
-          {/* Top Ranker Highlight */}
-          {topPlayer && (
-            <div
+        {/* Live Top 3 Leaderboard Section in Hero */}
+        <div className="pt-6 border-t border-white/10 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-amber-400" />
+              <span className="text-xs font-black uppercase tracking-wider text-amber-400">
+                Top 3 Vợt Thủ Dẫn Đầu Bảng Xếp Hạng CLB
+              </span>
+            </div>
+            <button
               onClick={() => setActiveTab('leaderboard')}
-              className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3.5 hover:bg-white/10 transition-colors cursor-pointer"
+              className="text-xs font-bold text-pickle-lime hover:underline flex items-center gap-1"
             >
-              <div className="relative">
-                <img
-                  src={topPlayer.avatar_url}
-                  alt={topPlayer.full_name}
-                  className="w-12 h-12 rounded-xl object-cover border-2 border-amber-400"
-                />
-                <span className="absolute -top-1.5 -right-1.5 text-xs">👑</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-[10px] text-amber-400 font-extrabold uppercase tracking-wider block">
-                  Top 1 Bảng Xếp Hạng CLB
-                </span>
-                <h4 className="text-sm font-bold text-white truncate font-display">
-                  {topPlayer.full_name} (@{topPlayer.nickname})
-                </h4>
-                <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono">
-                  <span className="text-pickle-lime font-bold">DUPR {topPlayer.dupr_rating.toFixed(2)}</span>
-                  <span>•</span>
-                  <span>{topPlayer.elo_points} ELO</span>
+              <span>Xem Toàn Bộ BXH ({members.length} VĐV)</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+            {/* Top 1 (Gold) */}
+            {top1 && (
+              <div
+                onClick={() => setActiveTab('leaderboard')}
+                className="relative p-4 rounded-2xl bg-gradient-to-b from-amber-500/20 via-amber-500/10 to-transparent border border-amber-400/50 hover:border-amber-400 flex items-center gap-3.5 transition-all hover:scale-[1.02] cursor-pointer shadow-lg shadow-amber-500/10 group"
+              >
+                <div className="relative shrink-0">
+                  <img
+                    src={top1.avatar_url}
+                    alt={top1.full_name}
+                    className="w-13 h-13 rounded-2xl object-cover border-2 border-amber-400 shadow-md group-hover:scale-105 transition-transform"
+                  />
+                  <div className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-amber-400 text-pickle-dark font-black text-[10px] shadow flex items-center gap-0.5">
+                    <span>👑</span>
+                    <span>#1</span>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] text-amber-400 font-extrabold uppercase tracking-wider block">
+                    🥇 Top 1 CLB
+                  </span>
+                  <h4 className="text-sm font-bold text-white truncate font-display group-hover:text-amber-300 transition-colors">
+                    {top1.full_name}
+                  </h4>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono mt-0.5">
+                    <span className="text-amber-400 font-extrabold">{top1.elo_points} ELO</span>
+                    <span>•</span>
+                    <span className="text-pickle-lime font-bold">DUPR {top1.dupr_rating.toFixed(2)}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* Active Tournament Highlight */}
-          {activeTournament && (
-            <div
-              onClick={() => setActiveTab('tournaments')}
-              className="p-4 rounded-2xl bg-white/5 backdrop-blur-md border border-white/10 flex items-center gap-3.5 hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              <div className="p-3 bg-pickle-lime/20 text-pickle-lime rounded-xl shrink-0">
-                <Trophy className="w-6 h-6" />
+            {/* Top 2 (Silver) */}
+            {top2 && (
+              <div
+                onClick={() => setActiveTab('leaderboard')}
+                className="relative p-4 rounded-2xl bg-gradient-to-b from-slate-300/20 via-slate-300/10 to-transparent border border-slate-300/40 hover:border-slate-200 flex items-center gap-3.5 transition-all hover:scale-[1.02] cursor-pointer shadow-lg shadow-slate-500/10 group"
+              >
+                <div className="relative shrink-0">
+                  <img
+                    src={top2.avatar_url}
+                    alt={top2.full_name}
+                    className="w-13 h-13 rounded-2xl object-cover border-2 border-slate-300 shadow-md group-hover:scale-105 transition-transform"
+                  />
+                  <div className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-slate-300 text-slate-900 font-black text-[10px] shadow flex items-center gap-0.5">
+                    <span>🥈</span>
+                    <span>#2</span>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider block">
+                    🥈 Top 2 CLB
+                  </span>
+                  <h4 className="text-sm font-bold text-white truncate font-display group-hover:text-slate-200 transition-colors">
+                    {top2.full_name}
+                  </h4>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono mt-0.5">
+                    <span className="text-slate-200 font-extrabold">{top2.elo_points} ELO</span>
+                    <span>•</span>
+                    <span className="text-pickle-lime font-bold">DUPR {top2.dupr_rating.toFixed(2)}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex-1 min-w-0">
-                <span className="text-[10px] text-pickle-lime font-extrabold uppercase tracking-wider block">
-                  {activeTournament.status === 'completed' ? 'Giải Vừa Kết Thúc' : 'Giải Đang Diễn Ra'}
-                </span>
-                <h4 className="text-sm font-bold text-white truncate font-display">
-                  {activeTournament.name}
-                </h4>
-                <p className="text-[11px] text-slate-300">
-                  {activeTournament.teams.length} cặp đấu • {activeTournament.num_groups} bảng đấu
-                </p>
-              </div>
-            </div>
-          )}
+            )}
 
+            {/* Top 3 (Bronze) */}
+            {top3 && (
+              <div
+                onClick={() => setActiveTab('leaderboard')}
+                className="relative p-4 rounded-2xl bg-gradient-to-b from-orange-500/20 via-orange-500/10 to-transparent border border-orange-400/40 hover:border-orange-300 flex items-center gap-3.5 transition-all hover:scale-[1.02] cursor-pointer shadow-lg shadow-orange-500/10 group"
+              >
+                <div className="relative shrink-0">
+                  <img
+                    src={top3.avatar_url}
+                    alt={top3.full_name}
+                    className="w-13 h-13 rounded-2xl object-cover border-2 border-orange-400 shadow-md group-hover:scale-105 transition-transform"
+                  />
+                  <div className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-orange-400 text-pickle-dark font-black text-[10px] shadow flex items-center gap-0.5">
+                    <span>🥉</span>
+                    <span>#3</span>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] text-orange-400 font-extrabold uppercase tracking-wider block">
+                    🥉 Top 3 CLB
+                  </span>
+                  <h4 className="text-sm font-bold text-white truncate font-display group-hover:text-orange-300 transition-colors">
+                    {top3.full_name}
+                  </h4>
+                  <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono mt-0.5">
+                    <span className="text-orange-300 font-extrabold">{top3.elo_points} ELO</span>
+                    <span>•</span>
+                    <span className="text-pickle-lime font-bold">DUPR {top3.dupr_rating.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-
       </div>
     </div>
   );
