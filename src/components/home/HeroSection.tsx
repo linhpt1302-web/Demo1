@@ -119,15 +119,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {top1 && (
               <div
                 onClick={() => setActiveTab('leaderboard')}
-                className="relative p-4 rounded-2xl bg-gradient-to-b from-amber-500/20 via-amber-500/10 to-transparent border border-amber-400/50 hover:border-amber-400 flex items-center gap-3.5 transition-all hover:scale-[1.02] cursor-pointer shadow-lg shadow-amber-500/10 group"
+                className="relative p-3.5 rounded-2xl bg-gradient-to-b from-amber-500/20 via-amber-500/10 to-transparent border border-amber-400/50 hover:border-amber-400 flex items-center gap-3 transition-all hover:scale-[1.02] cursor-pointer shadow-lg shadow-amber-500/10 group"
               >
                 <div className="relative shrink-0">
                   <img
                     src={top1.avatar_url}
                     alt={top1.full_name}
-                    className="w-13 h-13 rounded-2xl object-cover border-2 border-amber-400 shadow-md group-hover:scale-105 transition-transform"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-amber-400 shadow-md group-hover:scale-105 transition-transform"
                   />
-                  <div className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-amber-400 text-pickle-dark font-black text-[10px] shadow flex items-center gap-0.5">
+                  <div className="absolute -top-1 -right-1 px-1 py-0.2 rounded-full bg-amber-400 text-pickle-dark font-black text-[9px] shadow flex items-center gap-0.5">
                     <span>👑</span>
                     <span>#1</span>
                   </div>
@@ -136,10 +136,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <span className="text-[10px] text-amber-400 font-extrabold uppercase tracking-wider block">
                     🥇 Top 1 CLB
                   </span>
-                  <h4 className="text-sm font-bold text-white truncate font-display group-hover:text-amber-300 transition-colors">
+                  <h4 className="text-xs sm:text-sm font-bold text-white truncate font-display group-hover:text-amber-300 transition-colors">
                     {top1.full_name}
                   </h4>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono mt-0.5">
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-300 font-mono mt-0.5">
                     <span className="text-amber-400 font-extrabold">{top1.elo_points} ELO</span>
                     <span>•</span>
                     <span className="text-pickle-lime font-bold">DUPR {top1.dupr_rating.toFixed(2)}</span>
@@ -152,15 +152,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {top2 && (
               <div
                 onClick={() => setActiveTab('leaderboard')}
-                className="relative p-4 rounded-2xl bg-gradient-to-b from-slate-300/20 via-slate-300/10 to-transparent border border-slate-300/40 hover:border-slate-200 flex items-center gap-3.5 transition-all hover:scale-[1.02] cursor-pointer shadow-lg shadow-slate-500/10 group"
+                className="relative p-3.5 rounded-2xl bg-gradient-to-b from-slate-300/20 via-slate-300/10 to-transparent border border-slate-300/40 hover:border-slate-200 flex items-center gap-3 transition-all hover:scale-[1.02] cursor-pointer shadow-lg shadow-slate-500/10 group"
               >
                 <div className="relative shrink-0">
                   <img
                     src={top2.avatar_url}
                     alt={top2.full_name}
-                    className="w-13 h-13 rounded-2xl object-cover border-2 border-slate-300 shadow-md group-hover:scale-105 transition-transform"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-slate-300 shadow-md group-hover:scale-105 transition-transform"
                   />
-                  <div className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-slate-300 text-slate-900 font-black text-[10px] shadow flex items-center gap-0.5">
+                  <div className="absolute -top-1 -right-1 px-1 py-0.2 rounded-full bg-slate-300 text-slate-900 font-black text-[9px] shadow flex items-center gap-0.5">
                     <span>🥈</span>
                     <span>#2</span>
                   </div>
@@ -169,10 +169,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <span className="text-[10px] text-slate-300 font-extrabold uppercase tracking-wider block">
                     🥈 Top 2 CLB
                   </span>
-                  <h4 className="text-sm font-bold text-white truncate font-display group-hover:text-slate-200 transition-colors">
+                  <h4 className="text-xs sm:text-sm font-bold text-white truncate font-display group-hover:text-slate-200 transition-colors">
                     {top2.full_name}
                   </h4>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono mt-0.5">
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-300 font-mono mt-0.5">
                     <span className="text-slate-200 font-extrabold">{top2.elo_points} ELO</span>
                     <span>•</span>
                     <span className="text-pickle-lime font-bold">DUPR {top2.dupr_rating.toFixed(2)}</span>
@@ -185,15 +185,15 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             {top3 && (
               <div
                 onClick={() => setActiveTab('leaderboard')}
-                className="relative p-4 rounded-2xl bg-gradient-to-b from-orange-500/20 via-orange-500/10 to-transparent border border-orange-400/40 hover:border-orange-300 flex items-center gap-3.5 transition-all hover:scale-[1.02] cursor-pointer shadow-lg shadow-orange-500/10 group"
+                className="relative p-3.5 rounded-2xl bg-gradient-to-b from-orange-500/20 via-orange-500/10 to-transparent border border-orange-400/40 hover:border-orange-300 flex items-center gap-3 transition-all hover:scale-[1.02] cursor-pointer shadow-lg shadow-orange-500/10 group"
               >
                 <div className="relative shrink-0">
                   <img
                     src={top3.avatar_url}
                     alt={top3.full_name}
-                    className="w-13 h-13 rounded-2xl object-cover border-2 border-orange-400 shadow-md group-hover:scale-105 transition-transform"
+                    className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-orange-400 shadow-md group-hover:scale-105 transition-transform"
                   />
-                  <div className="absolute -top-2 -right-2 px-1.5 py-0.5 rounded-full bg-orange-400 text-pickle-dark font-black text-[10px] shadow flex items-center gap-0.5">
+                  <div className="absolute -top-1 -right-1 px-1 py-0.2 rounded-full bg-orange-400 text-pickle-dark font-black text-[9px] shadow flex items-center gap-0.5">
                     <span>🥉</span>
                     <span>#3</span>
                   </div>
@@ -202,10 +202,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <span className="text-[10px] text-orange-400 font-extrabold uppercase tracking-wider block">
                     🥉 Top 3 CLB
                   </span>
-                  <h4 className="text-sm font-bold text-white truncate font-display group-hover:text-orange-300 transition-colors">
+                  <h4 className="text-xs sm:text-sm font-bold text-white truncate font-display group-hover:text-orange-300 transition-colors">
                     {top3.full_name}
                   </h4>
-                  <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono mt-0.5">
+                  <div className="flex items-center gap-1.5 text-[10px] sm:text-[11px] text-slate-300 font-mono mt-0.5">
                     <span className="text-orange-300 font-extrabold">{top3.elo_points} ELO</span>
                     <span>•</span>
                     <span className="text-pickle-lime font-bold">DUPR {top3.dupr_rating.toFixed(2)}</span>
