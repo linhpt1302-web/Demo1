@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Member } from '../../types';
-import { X, Upload, Check, Camera, Image as ImageIcon, Sparkles } from 'lucide-react';
+import { X, Upload, Check, Camera, Image as ImageIcon, Sparkles, Loader2 } from 'lucide-react';
 
 interface AvatarPickerModalProps {
   isOpen: boolean;
@@ -58,28 +57,123 @@ export const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
   const [selectedUrl, setSelectedUrl] = useState(currentAvatar);
   const [customUrl, setCustomUrl] = useState('');
   const [activeTab, setActiveTab] = useState<'presets' | 'upload' | 'url'>('presets');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Check size limit (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Vui lòng chọn ảnh có kích thước dưới 5MB.');
+  /**
+   * Automatically crop center square and compress image to 400x400 JPG (~30KB)
+   * This guarantees that large phone/camera images never exceed localStorage quota.
+   */
+  const processImageFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Vui lòng chọn một tệp hình ảnh hợp lệ (JPG, PNG, WEBP, GIF, HEIC).');
       return;
     }
 
+    setIsProcessing(true);
+
     const reader = new FileReader();
     reader.onload = (event) => {
-      const result = event.target?.result as string;
-      if (result) {
-        setSelectedUrl(result);
+      const rawDataUrl = event.target?.result as string;
+      if (!rawDataUrl) {
+        setIsProcessing(false);
+        return;
       }
+
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          const MAX_SIZE = 400;
+
+          const width = img.naturalWidth || img.width;
+          const height = img.naturalHeight || img.height;
+
+          // Crop center square
+          const minDim = Math.min(width, height);
+          const startX = (width - minDim) / 2;
+          const startY = (height - minDim) / 2;
+
+          canvas.width = Math.min(MAX_SIZE, minDim);
+          canvas.height = Math.min(MAX_SIZE, minDim);
+
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(
+              img,
+              startX,
+              startY,
+              minDim,
+              minDim,
+              0,
+              0,
+              canvas.width,
+              canvas.height
+            );
+
+            // Compress to optimized JPEG (quality 0.85) ~30KB
+            const optimizedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+            setSelectedUrl(optimizedBase64);
+          } else {
+            setSelectedUrl(rawDataUrl);
+          }
+        } catch (err) {
+          console.warn('Canvas compression fallback:', err);
+          setSelectedUrl(rawDataUrl);
+        } finally {
+          setIsProcessing(false);
+        }
+      };
+
+      img.onerror = () => {
+        alert('Không thể đọc file ảnh này. Vui lòng thử một ảnh khác.');
+        setIsProcessing(false);
+      };
+
+      img.src = rawDataUrl;
     };
+
+    reader.onerror = () => {
+      alert('Lỗi khi đọc file từ máy tính.');
+      setIsProcessing(false);
+    };
+
     reader.readAsDataURL(file);
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
+    // Reset file input so user can re-pick the same file if needed
+    if (e.target) {
+      e.target.value = '';
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processImageFile(file);
+    }
   };
 
   const handleConfirm = () => {
@@ -116,7 +210,7 @@ export const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
               Thay Đổi Ảnh Đại Diện (Avatar)
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Chọn ảnh có sẵn, tải ảnh từ máy tính hoặc nhập đường dẫn URL
+              Chọn ảnh có sẵn, tải ảnh từ máy tính hoặc dán link ảnh
             </p>
           </div>
         </div>
@@ -124,25 +218,33 @@ export const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
         {/* Current Preview */}
         <div className="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-pickle-surface border border-slate-200 dark:border-pickle-border/80 mb-5">
           <div className="relative">
-            <img
-              src={activeTab === 'url' && customUrl ? customUrl : selectedUrl}
-              alt="Preview"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src =
-                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
-              }}
-              className="w-16 h-16 rounded-2xl object-cover border-2 border-pickle-lime shadow-md"
-            />
+            {isProcessing ? (
+              <div className="w-16 h-16 rounded-2xl bg-slate-200 dark:bg-slate-700 flex items-center justify-center border-2 border-pickle-lime">
+                <Loader2 className="w-6 h-6 text-pickle-500 animate-spin" />
+              </div>
+            ) : (
+              <img
+                src={activeTab === 'url' && customUrl ? customUrl : selectedUrl}
+                alt="Preview"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400';
+                }}
+                className="w-16 h-16 rounded-2xl object-cover border-2 border-pickle-lime shadow-md"
+              />
+            )}
             <div className="absolute -bottom-1 -right-1 p-1 bg-pickle-lime text-pickle-dark rounded-full shadow">
               <Sparkles className="w-3 h-3" />
             </div>
           </div>
           <div className="flex-1 min-w-0">
             <span className="text-xs font-bold text-slate-900 dark:text-white block">
-              Ảnh xem trước
+              {isProcessing ? 'Đang tối ưu & nén ảnh...' : 'Ảnh đại diện đang chọn'}
             </span>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
-              Ảnh đại diện sẽ hiển thị trên thẻ VĐV, Bảng xếp hạng và Thẻ số Digital Pass.
+              {isProcessing
+                ? 'Hệ thống đang tự động tối ưu độ phân giải để hiển thị sắc nét nhất'
+                : 'Hiển thị trên Thẻ thành viên, Bảng xếp hạng DUPR và QR Pass'}
             </p>
           </div>
         </div>
@@ -225,21 +327,34 @@ export const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
               type="file"
               ref={fileInputRef}
               accept="image/*"
-              onChange={handleFileUpload}
+              onChange={handleFileInputChange}
               className="hidden"
             />
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-pickle-lime/60 hover:border-pickle-lime bg-pickle-lime/5 dark:bg-pickle-lime/10 p-8 rounded-2xl text-center cursor-pointer transition-all hover:scale-[1.01]"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`border-2 border-dashed ${
+                isDragging
+                  ? 'border-pickle-lime bg-pickle-lime/20 scale-[1.02]'
+                  : 'border-pickle-lime/60 hover:border-pickle-lime bg-pickle-lime/5 dark:bg-pickle-lime/10'
+              } p-8 rounded-2xl text-center cursor-pointer transition-all hover:scale-[1.01]`}
             >
               <div className="w-12 h-12 mx-auto rounded-full bg-pickle-lime/20 text-pickle-600 dark:text-pickle-lime flex items-center justify-center mb-3">
-                <Upload className="w-6 h-6" />
+                {isProcessing ? (
+                  <Loader2 className="w-6 h-6 animate-spin text-pickle-500" />
+                ) : (
+                  <Upload className="w-6 h-6" />
+                )}
               </div>
               <p className="text-xs font-bold text-slate-800 dark:text-white">
-                Nhấp để chọn ảnh từ điện thoại / máy tính
+                {isProcessing
+                  ? 'Đang xử lý và nén ảnh...'
+                  : 'Nhấp để chọn ảnh hoặc Kéo thả ảnh từ máy tính vào đây'}
               </p>
               <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                Hỗ trợ định dạng JPG, PNG, WEBP (Tối đa 5MB)
+                Tự động tối ưu hóa và tương thích 100% (JPG, PNG, WEBP, HEIC)
               </p>
             </div>
           </div>
@@ -275,10 +390,11 @@ export const AvatarPickerModal: React.FC<AvatarPickerModalProps> = ({
           </button>
           <button
             type="button"
+            disabled={isProcessing}
             onClick={handleConfirm}
-            className="px-6 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-pickle-500 to-pickle-lime text-pickle-dark hover:from-pickle-400 hover:to-pickle-300 shadow-lg shadow-pickle-lime/20 transition-all hover:scale-105 active:scale-95"
+            className="px-6 py-2.5 rounded-xl text-xs font-black bg-gradient-to-r from-pickle-500 to-pickle-lime text-pickle-dark hover:from-pickle-400 hover:to-pickle-300 shadow-lg shadow-pickle-lime/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
           >
-            Xác Nhận Đổi Avatar
+            {isProcessing ? 'Đang Xử Lý...' : 'Xác Nhận Đổi Avatar'}
           </button>
         </div>
       </div>
