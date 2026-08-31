@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.tournaments (
     banner_url TEXT,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    status TEXT NOT NULL DEFAULT 'group_stage' CHECK (status IN ('draft', 'registration', 'group_stage', 'knockout', 'completed')),
+    status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'registration', 'group_stage', 'knockout', 'completed')),
     format TEXT NOT NULL DEFAULT 'group_and_knockout',
     num_groups INTEGER NOT NULL DEFAULT 3,
     group_names JSONB DEFAULT '["A", "B", "C"]'::jsonb,
@@ -101,9 +101,9 @@ CREATE TABLE IF NOT EXISTS public.club_settings (
     club_name TEXT NOT NULL DEFAULT 'Friends Pickleball Club',
     slogan TEXT DEFAULT 'Đam Mê - Kết Nối - Nâng Tầm Trình Độ 🎾⚡',
     location TEXT DEFAULT 'Sân Dũng/Vân Anh, địa chỉ: khu đô thị Eko Lake - Linh Sơn-Thái Nguyên',
-    play_schedule TEXT DEFAULT 'Thứ 3, 5, 7: 18h00 - 21h30 | Chủ Nhật: 07h30 - 11h30',
-    contact_phone TEXT DEFAULT '0988.112.233 (Chủ tịch Hoàng Mạnh Cường)',
-    contact_zalo TEXT DEFAULT 'https://zalo.me/g/picklefriends',
+    play_schedule TEXT DEFAULT 'Hàng ngày: 18h00 - 21h00',
+    contact_phone TEXT DEFAULT '',
+    contact_zalo TEXT DEFAULT 'https://zalo.me/g/fxdqrzrost2yui5t1mlz',
     updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW())
 );
 
@@ -187,8 +187,12 @@ VALUES (
     'Friends Pickleball Club',
     'Đam Mê - Kết Nối - Nâng Tầm Trình Độ 🎾⚡',
     'Sân Dũng/Vân Anh, địa chỉ: khu đô thị Eko Lake - Linh Sơn-Thái Nguyên',
-    'Thứ 3, 5, 7: 18h00 - 21h30 | Chủ Nhật: 07h30 - 11h30',
-    '0988.112.233 (Chủ tịch Hoàng Mạnh Cường)',
-    'https://zalo.me/g/picklefriends'
+    'Hàng ngày: 18h00 - 21h00',
+    '',
+    'https://zalo.me/g/fxdqrzrost2yui5t1mlz'
 )
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET
+    play_schedule = EXCLUDED.play_schedule,
+    location = EXCLUDED.location,
+    contact_phone = EXCLUDED.contact_phone,
+    contact_zalo = EXCLUDED.contact_zalo;

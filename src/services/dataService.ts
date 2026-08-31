@@ -87,7 +87,9 @@ class DataService {
       try {
         const stored = JSON.parse(localStorage.getItem(STORAGE_KEYS.SETTINGS) || '{}');
         stored.location = INITIAL_SETTINGS.location;
+        stored.play_schedule = INITIAL_SETTINGS.play_schedule;
         stored.contact_phone = INITIAL_SETTINGS.contact_phone;
+        stored.contact_zalo = INITIAL_SETTINGS.contact_zalo;
         localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(stored));
       } catch {
         localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(INITIAL_SETTINGS));

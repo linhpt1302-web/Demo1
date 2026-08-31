@@ -71,21 +71,15 @@ export const Footer: React.FC<FooterProps> = ({ settings, setActiveTab }) => {
               Liên Hệ & Kết Nối
             </h4>
             <div className="space-y-3 text-xs text-slate-600 dark:text-slate-400">
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-pickle-500 shrink-0" />
-                <span className="font-semibold text-slate-800 dark:text-slate-200">{settings.contact_phone}</span>
-              </div>
-              <div className="flex items-center gap-2">
+              <a
+                href={settings.contact_zalo || 'https://zalo.me/g/fxdqrzrost2yui5t1mlz'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-600 dark:text-cyan-400 font-bold transition-all shadow-sm hover:scale-[1.02]"
+              >
                 <MessageCircle className="w-4 h-4 text-cyan-500 shrink-0" />
-                <a
-                  href={settings.contact_zalo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cyan-600 dark:text-cyan-400 hover:underline"
-                >
-                  Nhóm Zalo Giao Lưu CLB
-                </a>
-              </div>
+                <span>Tham Gia Nhóm Zalo CLB</span>
+              </a>
               <div className="pt-2">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pickle-lime/10 border border-pickle-lime/20 text-[11px] font-bold text-pickle-600 dark:text-pickle-lime">
                   <span>⚡ 2v2 Double Ranking Engine</span>

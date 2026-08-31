@@ -588,7 +588,7 @@ export const INITIAL_NEWS: NewsPost[] = [
   {
     id: 'news_2',
     title: 'Lịch Giao Lưu & Sinh Hoạt Định Kỳ Tháng 9/2026',
-    content: 'Lịch sinh hoạt cố định: Thứ 3, 5, 7 từ 18:00 đến 21:30 và sáng Chủ Nhật từ 07:30 đến 11:30 tại Sân Dũng/Vân Anh (Khu đô thị Eko Lake - Linh Sơn - Thái Nguyên). Thành viên đăng ký sớm để BTC sắp xếp ca đánh đôi và tính điểm DUPR/ELO.',
+    content: 'Lịch sinh hoạt cố định: 18:00 - 21:00 tất cả các ngày trong tuần tại Sân Dũng/Vân Anh (Khu đô thị Eko Lake - Linh Sơn - Thái Nguyên). Thành viên đăng ký sớm để BTC sắp xếp ca đánh đôi và tính điểm DUPR/ELO.',
     category: 'schedule',
     image_url: 'https://images.unsplash.com/photo-1526676037777-05a232554f77?auto=format&fit=crop&q=80&w=800',
     author_name: 'Chủ Tịch Hoàng Mạnh Cường',
@@ -612,7 +612,7 @@ export const INITIAL_JOIN_REQUESTS: JoinRequest[] = [
     id: 'req_1',
     full_name: 'Nguyễn Văn Hùng',
     phone: '0909.888.777',
-    zalo_fb: 'https://zalo.me/0909888777',
+    zalo_fb: 'https://zalo.me/g/fxdqrzrost2yui5t1mlz',
     self_rating: 3.0,
     experience_years: '1 năm',
     preferred_hand: 'Tay phải',
@@ -626,7 +626,8 @@ export const INITIAL_SETTINGS: ClubSettings = {
   club_name: 'Friends Pickleball Club',
   slogan: 'Đam Mê - Kết Nối - Nâng Tầm Trình Độ 🎾⚡',
   location: 'Sân Dũng/Vân Anh, địa chỉ: khu đô thị Eko Lake - Linh Sơn-Thái Nguyên',
-  play_schedule: 'Thứ 3, 5, 7: 18h00 - 21h30 | Chủ Nhật: 07h30 - 11h30',
-  contact_phone: '0988.112.233 (Chủ tịch Hoàng Mạnh Cường)',
-  contact_zalo: 'https://zalo.me/g/picklefriends',
+  play_schedule: 'Hàng ngày: 18h00 - 21h00',
+  contact_phone: '',
+  contact_zalo: 'https://zalo.me/g/fxdqrzrost2yui5t1mlz',
 };
+

@@ -46,33 +46,33 @@ export const UpcomingEvents: React.FC<UpcomingEventsProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-pickle-surface border border-slate-200 dark:border-pickle-border space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
-              <span>📅 Thứ 3, Thứ 5, Thứ 7</span>
+              <span>📅 Sinh Hoạt Hàng Ngày</span>
               <span className="px-2 py-0.5 rounded bg-pickle-lime/20 text-pickle-700 dark:text-pickle-lime text-[10px]">
-                Ca Tối
+                Tất Cả Các Ngày
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
               <Clock className="w-4 h-4 text-pickle-500" />
-              <span>18:00 - 21:30 (4 Sân Tiêu Chuẩn)</span>
+              <span>18:00 - 21:00 (4 Sân Tiêu Chuẩn)</span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Ghép cặp ngẫu nhiên và đấu xếp hạng ELO nội bộ.
+              Giao lưu đấu đôi 2v2 và thi đấu tính điểm ELO / DUPR CLB.
             </p>
           </div>
 
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-pickle-surface border border-slate-200 dark:border-pickle-border space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
-              <span>☀️ Sáng Chủ Nhật</span>
+              <span>⚡ Ca Chơi Buổi Tối</span>
               <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px]">
-                Giải Mini & Huấn Luyện
+                18h00 - 21h00
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
               <Clock className="w-4 h-4 text-amber-500" />
-              <span>07:30 - 11:30 (Giao lưu mở rộng)</span>
+              <span>Thứ 2 đến Chủ Nhật hàng tuần</span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Tập huấn chiến thuật dinking, drop shot và giải đấu mini King of the Court.
+              Sân Dũng/Vân Anh mở cửa đón toàn thể anh chị em hội viên ra sân.
             </p>
           </div>
         </div>
