@@ -101,7 +101,7 @@ CREATE TABLE IF NOT EXISTS public.club_settings (
     club_name TEXT NOT NULL DEFAULT 'Friends Pickleball Club',
     slogan TEXT DEFAULT 'Đam Mê - Kết Nối - Nâng Tầm Trình Độ 🎾⚡',
     location TEXT DEFAULT 'Sân Dũng/Vân Anh, địa chỉ: khu đô thị Eko Lake - Linh Sơn-Thái Nguyên',
-    play_schedule TEXT DEFAULT 'Hàng ngày: 18h00 - 21h00',
+    play_schedule TEXT DEFAULT 'Thứ 2 - Thứ 7: 18h00 - 21h00 | Chủ Nhật: 17h00 - 21h00',
     contact_phone TEXT DEFAULT '',
     contact_zalo TEXT DEFAULT 'https://zalo.me/g/fxdqrzrost2yui5t1mlz',
     updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW())

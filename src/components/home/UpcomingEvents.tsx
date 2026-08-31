@@ -46,9 +46,9 @@ export const UpcomingEvents: React.FC<UpcomingEventsProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-pickle-surface border border-slate-200 dark:border-pickle-border space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
-              <span>📅 Sinh Hoạt Hàng Ngày</span>
+              <span>📅 Thứ 2 Đến Thứ 7</span>
               <span className="px-2 py-0.5 rounded bg-pickle-lime/20 text-pickle-700 dark:text-pickle-lime text-[10px]">
-                Tất Cả Các Ngày
+                18h00 - 21h00
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
@@ -62,17 +62,17 @@ export const UpcomingEvents: React.FC<UpcomingEventsProps> = ({
 
           <div className="p-4 rounded-2xl bg-slate-50 dark:bg-pickle-surface border border-slate-200 dark:border-pickle-border space-y-2">
             <div className="flex items-center justify-between text-xs font-bold text-slate-900 dark:text-white">
-              <span>⚡ Ca Chơi Buổi Tối</span>
+              <span>☀️ Chủ Nhật Hàng Tuần</span>
               <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px]">
-                18h00 - 21h00
+                17h00 - 21h00
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
               <Clock className="w-4 h-4 text-amber-500" />
-              <span>Thứ 2 đến Chủ Nhật hàng tuần</span>
+              <span>17:00 - 21:00 (Ra Sân Sớm Cuối Tuần)</span>
             </div>
             <p className="text-[11px] text-slate-500 dark:text-slate-400">
-              Sân Dũng/Vân Anh mở cửa đón toàn thể anh chị em hội viên ra sân.
+              Giao lưu mở rộng, rèn luyện kỹ thuật và thi đấu mini game gắn kết hội viên.
             </p>
           </div>
         </div>

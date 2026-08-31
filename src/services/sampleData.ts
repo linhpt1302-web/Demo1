@@ -588,7 +588,7 @@ export const INITIAL_NEWS: NewsPost[] = [
   {
     id: 'news_2',
     title: 'Lịch Giao Lưu & Sinh Hoạt Định Kỳ Tháng 9/2026',
-    content: 'Lịch sinh hoạt cố định: 18:00 - 21:00 tất cả các ngày trong tuần tại Sân Dũng/Vân Anh (Khu đô thị Eko Lake - Linh Sơn - Thái Nguyên). Thành viên đăng ký sớm để BTC sắp xếp ca đánh đôi và tính điểm DUPR/ELO.',
+    content: 'Lịch sinh hoạt cố định: Thứ 2 đến Thứ 7 từ 18:00 - 21:00, riêng Chủ Nhật từ 17:00 - 21:00 tại Sân Dũng/Vân Anh (Khu đô thị Eko Lake - Linh Sơn - Thái Nguyên). Thành viên đăng ký sớm để BTC sắp xếp ca đánh đôi và tính điểm DUPR/ELO.',
     category: 'schedule',
     image_url: 'https://images.unsplash.com/photo-1526676037777-05a232554f77?auto=format&fit=crop&q=80&w=800',
     author_name: 'Chủ Tịch Hoàng Mạnh Cường',
@@ -626,7 +626,7 @@ export const INITIAL_SETTINGS: ClubSettings = {
   club_name: 'Friends Pickleball Club',
   slogan: 'Đam Mê - Kết Nối - Nâng Tầm Trình Độ 🎾⚡',
   location: 'Sân Dũng/Vân Anh, địa chỉ: khu đô thị Eko Lake - Linh Sơn-Thái Nguyên',
-  play_schedule: 'Hàng ngày: 18h00 - 21h00',
+  play_schedule: 'Thứ 2 - Thứ 7: 18h00 - 21h00 | Chủ Nhật: 17h00 - 21h00',
   contact_phone: '',
   contact_zalo: 'https://zalo.me/g/fxdqrzrost2yui5t1mlz',
 };
