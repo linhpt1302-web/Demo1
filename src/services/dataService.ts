@@ -14,7 +14,7 @@ import {
   INITIAL_JOIN_REQUESTS,
   INITIAL_SETTINGS,
 } from './sampleData';
-import { rollbackMatchElo } from '../utils/eloCalculator';
+import { rollbackMatchElo, recalculateAllMemberStats } from '../utils/eloCalculator';
 import { getSupabaseClient } from './supabase';
 
 const STORAGE_KEYS = {
@@ -212,7 +212,7 @@ class DataService {
     }
   }
 
-  public async saveMatch(match: Match): Promise<void> {
+  public async saveMatch(match: Match, updatedMembers?: Member[]): Promise<void> {
     const matches = this.getMatches();
     const index = matches.findIndex((m) => m.id === match.id);
     if (index >= 0) {
@@ -221,14 +221,32 @@ class DataService {
       matches.unshift(match);
     }
     localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify(matches));
+
+    if (updatedMembers && updatedMembers.length > 0) {
+      const members = this.getMembers();
+      const map = new Map(members.map((m) => [m.id, m]));
+      for (const u of updatedMembers) {
+        map.set(u.id, u);
+      }
+      const finalMembers = Array.from(map.values());
+      localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(finalMembers));
+    }
+
     this.notify();
 
     // Cloud sync
     const supabase = getSupabaseClient();
     if (supabase) {
       try {
-        const { error } = await supabase.from('matches').upsert(match);
-        if (error) console.warn('Supabase match upsert error:', error.message);
+        const matchUpsert = supabase.from('matches').upsert(match);
+        const membersUpsert =
+          updatedMembers && updatedMembers.length > 0
+            ? supabase.from('members').upsert(updatedMembers)
+            : Promise.resolve({ error: null });
+
+        const [mRes, memRes] = await Promise.all([matchUpsert, membersUpsert]);
+        if (mRes.error) console.warn('Supabase match upsert error:', mRes.error.message);
+        if (memRes.error) console.warn('Supabase members upsert error:', memRes.error.message);
       } catch (e) {
         console.warn('Supabase exception on saveMatch:', e);
       }
@@ -259,6 +277,74 @@ class DataService {
         console.warn('Supabase exception on deleteMatch:', e);
       }
     }
+  }
+
+  /**
+   * Recalculates and synchronizes all member stats and ELO ratings from the complete match history.
+   */
+  public async recalculateAllClubStats(): Promise<{ memberCount: number; matchCount: number }> {
+    const members = this.getMembers();
+    const standaloneMatches = this.getMatches();
+
+    const tournaments = this.getTournaments();
+    const tournamentMatches: Match[] = [];
+    for (const t of tournaments) {
+      if (t.group_matches) tournamentMatches.push(...t.group_matches);
+      if (t.knockout_matches) {
+        const km = t.knockout_matches;
+        if (km.quarterfinals) tournamentMatches.push(...km.quarterfinals);
+        if (km.semifinals) tournamentMatches.push(...km.semifinals);
+        if (km.final) tournamentMatches.push(km.final);
+        if (km.bronze) tournamentMatches.push(km.bronze);
+      }
+    }
+
+    // Deduplicate matches by id
+    const allMatchesMap = new Map<string, Match>();
+    standaloneMatches.forEach((m) => allMatchesMap.set(m.id, m));
+    tournamentMatches.forEach((m) => allMatchesMap.set(m.id, m));
+    const allMatches = Array.from(allMatchesMap.values());
+
+    const initialEloMap: Record<string, number> = {};
+    INITIAL_MEMBERS.forEach((m) => {
+      initialEloMap[m.id] = m.elo_points;
+    });
+
+    const { recalculatedMembers, recalculatedMatches } = recalculateAllMemberStats(
+      members,
+      allMatches,
+      initialEloMap
+    );
+
+    // Save recalculated members and standalone matches
+    localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(recalculatedMembers));
+    
+    // Update standalone matches
+    const updatedStandalone = standaloneMatches.map((sm) => {
+      const rec = recalculatedMatches.find((rm) => rm.id === sm.id);
+      return rec || sm;
+    });
+    localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify(updatedStandalone));
+
+    this.notify();
+
+    // Sync to Supabase
+    const supabase = getSupabaseClient();
+    if (supabase) {
+      try {
+        await Promise.all([
+          supabase.from('members').upsert(recalculatedMembers),
+          supabase.from('matches').upsert(updatedStandalone),
+        ]);
+      } catch (e) {
+        console.warn('Supabase sync exception on recalculate:', e);
+      }
+    }
+
+    return {
+      memberCount: recalculatedMembers.length,
+      matchCount: allMatches.filter((m) => m.status === 'completed').length,
+    };
   }
 
   // --- Tournaments ---

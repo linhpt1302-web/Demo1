@@ -11,6 +11,7 @@ import {
   updateKnockoutProgression,
 } from '../../utils/tournamentEngine';
 import { useAuth } from '../../context/AuthContext';
+import { dataService } from '../../services/dataService';
 import {
   Trophy,
   ArrowLeft,
@@ -96,10 +97,8 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({
       }
     }
 
-    // Save updated members ELO/DUPR if any
-    if (updatedMembers && updatedMembers.length > 0) {
-      onSaveMemberBatch(updatedMembers);
-    }
+    // Save updated members ELO/DUPR and match atomically
+    dataService.saveMatch(updatedMatch, updatedMembers);
 
     onUpdateTournament(updatedTour);
   };

@@ -41,21 +41,23 @@ export const RecordMatchModal: React.FC<RecordMatchModalProps> = ({
 
   // Reset and auto-initialize valid selections whenever modal opens
   useEffect(() => {
-    if (isOpen && members && members.length >= 4) {
-      const selected = [team1P1, team1P2, team2P1, team2P2];
-      const allExist = selected.every((id) => id && members.some((m) => m.id === id));
-      const isDistinct = new Set(selected.filter(Boolean)).size === 4;
-
-      if (!allExist || !isDistinct) {
-        setTeam1P1(members[0]?.id || '');
-        setTeam1P2(members[1]?.id || '');
-        setTeam2P1(members[2]?.id || '');
-        setTeam2P2(members[3]?.id || '');
-      }
+    if (isOpen) {
       setIsSuccess(false);
       setSavedMatchSummary(null);
+      if (members && members.length >= 4) {
+        const selected = [team1P1, team1P2, team2P1, team2P2];
+        const allExist = selected.every((id) => id && members.some((m) => m.id === id));
+        const isDistinct = new Set(selected.filter(Boolean)).size === 4;
+
+        if (!allExist || !isDistinct) {
+          setTeam1P1(members[0]?.id || '');
+          setTeam1P2(members[1]?.id || '');
+          setTeam2P1(members[2]?.id || '');
+          setTeam2P2(members[3]?.id || '');
+        }
+      }
     }
-  }, [isOpen, members]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -149,18 +151,20 @@ export const RecordMatchModal: React.FC<RecordMatchModalProps> = ({
   const eloPreview = useMemo(() => {
     if (!isValidMatch || !p1 || !p2 || !p3 || !p4) return null;
     try {
-      return calculate2v2Elo(p1, p2, p3, p4, winnerTeam, team1Scores, team2Scores);
+      const isRanking = matchType === 'ranking';
+      return calculate2v2Elo(p1, p2, p3, p4, winnerTeam, team1Scores, team2Scores, isRanking);
     } catch (e) {
       console.error('Error calculating ELO preview:', e);
       return null;
     }
-  }, [isValidMatch, p1, p2, p3, p4, winnerTeam, team1Scores, team2Scores]);
+  }, [isValidMatch, p1, p2, p3, p4, winnerTeam, team1Scores, team2Scores, matchType]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isValidMatch || !p1 || !p2 || !p3 || !p4 || !eloPreview) return;
 
     try {
+      const isRanking = matchType === 'ranking';
       const newMatch: Match = {
         id: `match_${Date.now()}`,
         match_type: matchType,
@@ -177,12 +181,11 @@ export const RecordMatchModal: React.FC<RecordMatchModalProps> = ({
         played_at: new Date().toISOString(),
         court_name: courtName || 'Sân 1 - Sân Dũng/Vân Anh',
         status: 'completed',
-        elo_changes: matchType === 'ranking' ? eloPreview.eloChanges : undefined,
+        elo_changes: isRanking ? eloPreview.eloChanges : undefined,
       };
 
-      const updatedMembersToSave = matchType === 'ranking' ? eloPreview.updatedMembers : [];
-
-      onSaveMatch(newMatch, updatedMembersToSave);
+      // Always save updated member stats (wins, losses, streak, and elo/dupr if ranking)
+      onSaveMatch(newMatch, eloPreview.updatedMembers);
       setSavedMatchSummary(newMatch);
       setIsSuccess(true);
 
@@ -197,6 +200,22 @@ export const RecordMatchModal: React.FC<RecordMatchModalProps> = ({
       }
     } catch (err) {
       console.error('Error saving match:', err);
+    }
+  };
+
+  const handleNextMatch = () => {
+    setIsSuccess(false);
+    setSavedMatchSummary(null);
+    if (format === '1_set_15') {
+      setT1ScoreSet1(15);
+      setT2ScoreSet1(11);
+    } else {
+      setT1ScoreSet1(11);
+      setT2ScoreSet1(9);
+      setT1ScoreSet2(11);
+      setT2ScoreSet2(8);
+      setT1ScoreSet3(0);
+      setT2ScoreSet3(0);
     }
   };
 
@@ -335,10 +354,7 @@ export const RecordMatchModal: React.FC<RecordMatchModalProps> = ({
             <div className="flex items-center justify-center gap-3 pt-2">
               <button
                 type="button"
-                onClick={() => {
-                  setIsSuccess(false);
-                  setSavedMatchSummary(null);
-                }}
+                onClick={handleNextMatch}
                 className="px-5 py-2.5 text-xs font-bold bg-slate-100 dark:bg-pickle-surface text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-xl transition-colors"
               >
                 + Ghi Trận Tiếp Theo

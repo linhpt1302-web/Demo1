@@ -34,6 +34,7 @@ export function duprToElo(dupr: number): number {
  * @param winnerTeam 1 if Team 1 won, 2 if Team 2 won
  * @param team1Scores Optional scores of Team 1
  * @param team2Scores Optional scores of Team 2
+ * @param isRanking True if ranking match (affects ELO & DUPR), false for casual (only stats)
  * @param kFactor ELO sensitivity constant (default 32)
  */
 export function calculate2v2Elo(
@@ -44,6 +45,7 @@ export function calculate2v2Elo(
   winnerTeam: 1 | 2,
   team1Scores?: number[],
   team2Scores?: number[],
+  isRanking: boolean = true,
   kFactor: number = 32
 ): {
   eloChanges: EloDeltaInfo[];
@@ -58,25 +60,32 @@ export function calculate2v2Elo(
   const team2Avg = (p3Elo + p4Elo) / 2;
 
   const expected1 = getExpectedScore(team1Avg, team2Avg);
-  const actual1 = winnerTeam === 1 ? 1 : 0;
+  const expected2 = 1 - expected1;
 
-  // Point difference margin multiplier (optional subtle booster for blowout wins)
-  let marginMultiplier = 1.0;
-  if (team1Scores && team2Scores && team1Scores.length > 0 && team2Scores.length > 0) {
-    const t1Total = team1Scores.reduce((a, b) => a + b, 0);
-    const t2Total = team2Scores.reduce((a, b) => a + b, 0);
-    const diff = Math.abs(t1Total - t2Total);
-    if (diff >= 10) marginMultiplier = 1.2;
-    else if (diff >= 6) marginMultiplier = 1.1;
+  let finalT1Delta = 0;
+  let finalT2Delta = 0;
+
+  if (isRanking) {
+    // Point difference margin multiplier (optional booster for blowout wins)
+    let marginMultiplier = 1.0;
+    if (team1Scores && team2Scores && team1Scores.length > 0 && team2Scores.length > 0) {
+      const t1Total = team1Scores.reduce((a, b) => a + b, 0);
+      const t2Total = team2Scores.reduce((a, b) => a + b, 0);
+      const diff = Math.abs(t1Total - t2Total);
+      if (diff >= 10) marginMultiplier = 1.2;
+      else if (diff >= 6) marginMultiplier = 1.1;
+    }
+
+    if (winnerTeam === 1) {
+      const delta = Math.max(2, Math.round(kFactor * (1 - expected1) * marginMultiplier));
+      finalT1Delta = delta;
+      finalT2Delta = -delta;
+    } else {
+      const delta = Math.max(2, Math.round(kFactor * (1 - expected2) * marginMultiplier));
+      finalT1Delta = -delta;
+      finalT2Delta = delta;
+    }
   }
-
-  // Base delta
-  const team1Delta = Math.max(
-    2,
-    Math.round(kFactor * (actual1 - expected1) * marginMultiplier)
-  );
-  const finalT1Delta = winnerTeam === 1 ? team1Delta : -team1Delta;
-  const finalT2Delta = -finalT1Delta;
 
   const updatePlayer = (player: Member, delta: number, isWin: boolean): Member => {
     const oldElo = Number(player.elo_points) || 1000;
@@ -204,4 +213,81 @@ export function rollbackMatchElo(match: Match, members: Member[]): Member[] {
   }
 
   return Array.from(memberMap.values());
+}
+
+/**
+ * Recalculates all member statistics and ELO ratings chronologically from raw match history
+ * Useful to repair any historical data corruption or ensure 100% data consistency.
+ */
+export function recalculateAllMemberStats(
+  members: Member[],
+  matches: Match[],
+  initialEloMap?: Record<string, number>
+): {
+  recalculatedMembers: Member[];
+  recalculatedMatches: Match[];
+} {
+  // 1. Reset all members to baseline stats (0 played, 0 won, 0 lost, 0 streak, initial ELO/DUPR)
+  const memberMap = new Map<string, Member>();
+  for (const m of members) {
+    const baseElo = initialEloMap && initialEloMap[m.id] ? initialEloMap[m.id] : (Number(m.elo_points) || 1000);
+    memberMap.set(m.id, {
+      ...m,
+      elo_points: baseElo,
+      dupr_rating: eloToDupr(baseElo),
+      matches_played: 0,
+      matches_won: 0,
+      matches_lost: 0,
+      current_streak: 0,
+    });
+  }
+
+  // 2. Sort completed matches in chronological order (oldest to newest)
+  const sortedMatches = [...matches]
+    .filter((m) => m.status === 'completed')
+    .sort((a, b) => new Date(a.played_at).getTime() - new Date(b.played_at).getTime());
+
+  const recalculatedMatches: Match[] = [];
+
+  // 3. Replay each match step-by-step
+  for (const match of sortedMatches) {
+    const p1 = memberMap.get(match.team1_player1_id);
+    const p2 = memberMap.get(match.team1_player2_id);
+    const p3 = memberMap.get(match.team2_player1_id);
+    const p4 = memberMap.get(match.team2_player2_id);
+
+    if (!p1 || !p2 || !p3 || !p4) {
+      recalculatedMatches.push(match);
+      continue;
+    }
+
+    const isRanking = match.match_type !== 'casual';
+    const winnerTeam: 1 | 2 = match.winner_team === 2 ? 2 : 1;
+    const result = calculate2v2Elo(
+      p1,
+      p2,
+      p3,
+      p4,
+      winnerTeam,
+      match.team1_scores,
+      match.team2_scores,
+      isRanking
+    );
+
+    // Update map with new member stats
+    for (const u of result.updatedMembers) {
+      memberMap.set(u.id, u);
+    }
+
+    // Update match elo_changes
+    recalculatedMatches.push({
+      ...match,
+      elo_changes: isRanking ? result.eloChanges : undefined,
+    });
+  }
+
+  return {
+    recalculatedMembers: Array.from(memberMap.values()),
+    recalculatedMatches,
+  };
 }

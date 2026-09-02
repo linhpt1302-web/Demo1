@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Match, Member, MatchFormat } from '../../types';
-import { calculate2v2Elo } from '../../utils/eloCalculator';
+import { calculate2v2Elo, rollbackMatchElo } from '../../utils/eloCalculator';
 import { X, Award, Zap, Trophy } from 'lucide-react';
 
 interface MatchScoreModalProps {
@@ -54,10 +54,16 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
 
   if (!isOpen || !match) return null;
 
-  const p1 = members.find((m) => m.id === match.team1_player1_id);
-  const p2 = members.find((m) => m.id === match.team1_player2_id);
-  const p3 = members.find((m) => m.id === match.team2_player1_id);
-  const p4 = members.find((m) => m.id === match.team2_player2_id);
+  // If match was already completed, roll back its stats from members before calculating preview
+  let baseMembers = members;
+  if (match.status === 'completed' && match.elo_changes && match.elo_changes.length > 0) {
+    baseMembers = rollbackMatchElo(match, members);
+  }
+
+  const p1 = baseMembers.find((m) => m.id === match.team1_player1_id);
+  const p2 = baseMembers.find((m) => m.id === match.team1_player2_id);
+  const p3 = baseMembers.find((m) => m.id === match.team2_player1_id);
+  const p4 = baseMembers.find((m) => m.id === match.team2_player2_id);
 
   // Compute winner and score arrays
   let team1Scores: number[] = [];
@@ -88,7 +94,7 @@ export const MatchScoreModal: React.FC<MatchScoreModalProps> = ({
 
   let eloPreview = null;
   if (hasAllPlayers && p1 && p2 && p3 && p4) {
-    eloPreview = calculate2v2Elo(p1, p2, p3, p4, winnerTeam, team1Scores, team2Scores);
+    eloPreview = calculate2v2Elo(p1, p2, p3, p4, winnerTeam, team1Scores, team2Scores, true);
   }
 
   const handleSubmit = (e: React.FormEvent) => {

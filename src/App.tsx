@@ -68,10 +68,7 @@ export const App: React.FC = () => {
   };
 
   const handleSaveMatch = (match: Match, updatedMembers: Member[]) => {
-    dataService.saveMatch(match);
-    if (updatedMembers.length > 0) {
-      dataService.saveMembersBatch(updatedMembers);
-    }
+    dataService.saveMatch(match, updatedMembers);
   };
 
   const handleDeleteMatch = (matchId: string) => {

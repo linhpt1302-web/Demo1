@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Member, Tournament, Match, JoinRequest, ClubSettings } from '../../types';
 import { JoinRequestManager } from './JoinRequestManager';
 import { DatabaseConfigModal } from './DatabaseConfigModal';
+import { dataService } from '../../services/dataService';
 import {
   LayoutDashboard,
   Users,
@@ -12,6 +13,7 @@ import {
   Settings,
   ShieldCheck,
   Zap,
+  RefreshCw,
 } from 'lucide-react';
 
 interface AdminDashboardProps {
@@ -39,9 +41,35 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
   const [activeAdminSubTab, setActiveAdminSubTab] = useState<'requests' | 'settings'>('requests');
   const [isDbModalOpen, setIsDbModalOpen] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [recalcResult, setRecalcResult] = useState<string | null>(null);
 
   const pendingRequests = joinRequests.filter((r) => r.status === 'pending');
   const activeTournaments = tournaments.filter((t) => t.status !== 'completed');
+
+  const handleRecalculateStats = async () => {
+    const conf = window.confirm(
+      '⚡ XÁC NHẬN TÍNH TOÁN LẠI TOÀN BỘ ELO & THẮNG/THUA CLB:\n\n' +
+      '• Hệ thống sẽ tự động duyệt lại toàn bộ các trận đấu đã diễn ra theo trình tự thời gian.\n' +
+      '• Cập nhật chính xác số trận Đã đấu, Thắng, Thua, Chuỗi thắng và Điểm ELO/DUPR cho từng thành viên.\n' +
+      '• Đồng bộ ngay lập tức lên Cloud Supabase.\n\n' +
+      'Bạn có muốn tiến hành tính toán lại ngay bây giờ?'
+    );
+    if (!conf) return;
+
+    try {
+      setIsRecalculating(true);
+      setRecalcResult(null);
+      const res = await dataService.recalculateAllClubStats();
+      setRecalcResult(`Đã tính toán & đồng bộ thành công ${res.memberCount} thành viên từ ${res.matchCount} trận đấu!`);
+      setTimeout(() => setRecalcResult(null), 5000);
+    } catch (e) {
+      console.error(e);
+      alert('Có lỗi xảy ra khi tính toán lại ELO.');
+    } finally {
+      setIsRecalculating(false);
+    }
+  };
 
   return (
     <div className="space-y-8 animate-fadeIn">
@@ -61,14 +89,33 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </p>
         </div>
 
-        <button
-          onClick={() => setIsDbModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-cyan-600/20 transition-all self-start md:self-auto"
-        >
-          <Database className="w-4 h-4" />
-          <span>Cấu Hình Supabase Cloud</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={handleRecalculateStats}
+            disabled={isRecalculating}
+            className="flex items-center gap-2 px-4 py-2.5 bg-pickle-lime hover:bg-pickle-400 text-pickle-dark font-black text-xs rounded-xl shadow-lg shadow-pickle-lime/20 transition-all disabled:opacity-50"
+            title="Duyệt lại toàn bộ lịch sử đấu và tính lại ELO / Thắng Thua chuẩn xác 100%"
+          >
+            <RefreshCw className={`w-4 h-4 ${isRecalculating ? 'animate-spin' : ''}`} />
+            <span>{isRecalculating ? 'Đang Tính Toán...' : '⚡ Đồng Bộ & Tính Lại ELO'}</span>
+          </button>
+
+          <button
+            onClick={() => setIsDbModalOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-cyan-600/20 transition-all self-start md:self-auto"
+          >
+            <Database className="w-4 h-4" />
+            <span>Cấu Hình Supabase Cloud</span>
+          </button>
+        </div>
       </div>
+
+      {recalcResult && (
+        <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-xs font-bold flex items-center gap-2 animate-fadeIn">
+          <span>✓</span>
+          <span>{recalcResult}</span>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
