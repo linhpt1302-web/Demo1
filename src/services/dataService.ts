@@ -92,7 +92,16 @@ class DataService {
       // 1. Fetch Members
       const { data: remoteMembers, error: mErr } = await supabase.from('members').select('*');
       if (!mErr && remoteMembers && remoteMembers.length > 0) {
-        localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(remoteMembers));
+        const localMembers = this.getMembers();
+        const localMap = new Map(localMembers.map((m) => [m.id, m]));
+        const mergedMembers = remoteMembers.map((rm) => {
+          const local = localMap.get(rm.id);
+          return {
+            ...rm,
+            avatar_url: rm.avatar_url || local?.avatar_url || '',
+          };
+        });
+        localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(mergedMembers));
       }
 
       // 2. Fetch Tournaments
@@ -166,8 +175,23 @@ class DataService {
     if (updatedMembers.length === 0) return;
     const members = this.getMembers();
     const map = new Map(members.map((m) => [m.id, m]));
+    const mergedList: Member[] = [];
     for (const u of updatedMembers) {
-      map.set(u.id, u);
+      const existing = map.get(u.id);
+      const merged: Member = existing
+        ? {
+            ...existing,
+            avatar_url: existing.avatar_url || u.avatar_url,
+            elo_points: u.elo_points,
+            dupr_rating: u.dupr_rating,
+            matches_played: u.matches_played,
+            matches_won: u.matches_won,
+            matches_lost: u.matches_lost,
+            current_streak: u.current_streak,
+          }
+        : u;
+      map.set(u.id, merged);
+      mergedList.push(merged);
     }
     const finalMembers = Array.from(map.values());
     localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(finalMembers));
@@ -177,7 +201,7 @@ class DataService {
     const supabase = getSupabaseClient();
     if (supabase) {
       try {
-        const { error } = await supabase.from('members').upsert(updatedMembers);
+        const { error } = await supabase.from('members').upsert(mergedList);
         if (error) console.warn('Supabase batch upsert error:', error.message);
       } catch (e) {
         console.warn('Supabase exception on saveMembersBatch:', e);
@@ -222,11 +246,26 @@ class DataService {
     }
     localStorage.setItem(STORAGE_KEYS.MATCHES, JSON.stringify(matches));
 
+    let mergedToUpsert: Member[] = [];
     if (updatedMembers && updatedMembers.length > 0) {
       const members = this.getMembers();
       const map = new Map(members.map((m) => [m.id, m]));
       for (const u of updatedMembers) {
-        map.set(u.id, u);
+        const existing = map.get(u.id);
+        const merged: Member = existing
+          ? {
+              ...existing,
+              avatar_url: existing.avatar_url || u.avatar_url,
+              elo_points: u.elo_points,
+              dupr_rating: u.dupr_rating,
+              matches_played: u.matches_played,
+              matches_won: u.matches_won,
+              matches_lost: u.matches_lost,
+              current_streak: u.current_streak,
+            }
+          : u;
+        map.set(u.id, merged);
+        mergedToUpsert.push(merged);
       }
       const finalMembers = Array.from(map.values());
       localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(finalMembers));
@@ -240,8 +279,8 @@ class DataService {
       try {
         const matchUpsert = supabase.from('matches').upsert(match);
         const membersUpsert =
-          updatedMembers && updatedMembers.length > 0
-            ? supabase.from('members').upsert(updatedMembers)
+          mergedToUpsert.length > 0
+            ? supabase.from('members').upsert(mergedToUpsert)
             : Promise.resolve({ error: null });
 
         const [mRes, memRes] = await Promise.all([matchUpsert, membersUpsert]);

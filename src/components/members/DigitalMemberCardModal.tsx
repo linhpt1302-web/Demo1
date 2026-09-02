@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Member } from '../../types';
 import { PickleLogo } from '../common/PickleLogo';
+import { getMemberAvatar, handleAvatarError } from '../../utils/avatarHelper';
 import { X, Flame, Zap, Sparkles, Check } from 'lucide-react';
 import QRCode from 'qrcode';
 
@@ -116,8 +117,9 @@ export const DigitalMemberCardModal: React.FC<DigitalMemberCardModalProps> = ({ 
           <div className="flex items-center gap-4 mb-5">
             <div className="relative">
               <img
-                src={member.avatar_url}
+                src={getMemberAvatar(member.avatar_url, member.full_name)}
                 alt={member.full_name}
+                onError={(e) => handleAvatarError(e, member.full_name)}
                 className="w-18 h-18 rounded-2xl object-cover border-2 border-pickle-lime shadow-lg"
               />
               <div className="absolute -bottom-1.5 -right-1.5 px-1.5 py-0.5 rounded-md bg-pickle-coral text-white font-extrabold text-[10px] shadow">

@@ -12,6 +12,7 @@ import {
 } from '../../utils/tournamentEngine';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/dataService';
+import { getMemberAvatar, handleAvatarError } from '../../utils/avatarHelper';
 import {
   Trophy,
   ArrowLeft,
@@ -365,13 +366,23 @@ export const TournamentDetail: React.FC<TournamentDetailProps> = ({
 
                 <div className="space-y-2 pt-2 border-t border-slate-100 dark:border-pickle-border/60">
                   <div className="flex items-center gap-2">
-                    <img src={p1?.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                    <img
+                      src={getMemberAvatar(p1?.avatar_url, p1?.full_name)}
+                      alt=""
+                      onError={(e) => handleAvatarError(e, p1?.full_name)}
+                      className="w-6 h-6 rounded-full object-cover"
+                    />
                     <span className="text-xs text-slate-700 dark:text-slate-300 truncate">{p1?.full_name}</span>
                     <span className="text-[10px] text-pickle-500 font-mono ml-auto">DUPR {p1?.dupr_rating.toFixed(2)}</span>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <img src={p2?.avatar_url} alt="" className="w-6 h-6 rounded-full object-cover" />
+                    <img
+                      src={getMemberAvatar(p2?.avatar_url, p2?.full_name)}
+                      alt=""
+                      onError={(e) => handleAvatarError(e, p2?.full_name)}
+                      className="w-6 h-6 rounded-full object-cover"
+                    />
                     <span className="text-xs text-slate-700 dark:text-slate-300 truncate">{p2?.full_name}</span>
                     <span className="text-[10px] text-pickle-500 font-mono ml-auto">DUPR {p2?.dupr_rating.toFixed(2)}</span>
                   </div>

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Member, Match } from '../../types';
 import { DigitalMemberCardModal } from '../members/DigitalMemberCardModal';
 import { useAuth } from '../../context/AuthContext';
+import { getMemberAvatar, handleAvatarError } from '../../utils/avatarHelper';
 import {
   Trophy,
   Award,
@@ -108,7 +109,12 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
               >
                 <div className="absolute top-2 left-2 text-2xl font-black text-slate-400 font-display">#2</div>
                 <div className="w-16 h-16 mx-auto rounded-2xl overflow-hidden border-2 border-slate-300 shadow-md mb-3 relative">
-                  <img src={top2.avatar_url} alt={top2.full_name} className="w-full h-full object-cover" />
+                  <img
+                    src={getMemberAvatar(top2.avatar_url, top2.full_name)}
+                    alt={top2.full_name}
+                    onError={(e) => handleAvatarError(e, top2.full_name)}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span className="inline-block px-2 py-0.5 rounded-full bg-slate-300/40 text-slate-700 dark:text-slate-300 text-[10px] font-extrabold uppercase mb-1">
                   🥈 Á Quân CLB
@@ -143,7 +149,12 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                 <div className="absolute -top-6 -right-6 w-24 h-24 bg-amber-400/20 rounded-full blur-xl"></div>
                 <div className="absolute top-2 left-3 text-3xl font-black text-amber-400 font-display">#1</div>
                 <div className="w-20 h-20 mx-auto rounded-3xl overflow-hidden border-3 border-amber-400 shadow-xl mb-3 relative group-hover:rotate-2 transition-transform">
-                  <img src={top1.avatar_url} alt={top1.full_name} className="w-full h-full object-cover" />
+                  <img
+                    src={getMemberAvatar(top1.avatar_url, top1.full_name)}
+                    alt={top1.full_name}
+                    onError={(e) => handleAvatarError(e, top1.full_name)}
+                    className="w-full h-full object-cover"
+                  />
                   <div className="absolute top-0 right-0 bg-amber-400 text-pickle-dark px-1.5 py-0.5 rounded-bl-lg font-black text-[10px]">
                     👑
                   </div>
@@ -178,7 +189,12 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
               >
                 <div className="absolute top-2 left-2 text-2xl font-black text-amber-700 font-display">#3</div>
                 <div className="w-16 h-16 mx-auto rounded-2xl overflow-hidden border-2 border-amber-700/50 shadow-md mb-3 relative">
-                  <img src={top3.avatar_url} alt={top3.full_name} className="w-full h-full object-cover" />
+                  <img
+                    src={getMemberAvatar(top3.avatar_url, top3.full_name)}
+                    alt={top3.full_name}
+                    onError={(e) => handleAvatarError(e, top3.full_name)}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span className="inline-block px-2 py-0.5 rounded-full bg-amber-700/20 text-amber-600 dark:text-amber-400 text-[10px] font-extrabold uppercase mb-1">
                   🥉 Hạng Ba CLB
@@ -247,8 +263,9 @@ export const LeaderboardTable: React.FC<LeaderboardTableProps> = ({
                           className="flex items-center gap-3 cursor-pointer group"
                         >
                           <img
-                            src={member.avatar_url}
+                            src={getMemberAvatar(member.avatar_url, member.full_name)}
                             alt={member.full_name}
+                            onError={(e) => handleAvatarError(e, member.full_name)}
                             className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-pickle-border group-hover:border-pickle-lime transition-colors"
                           />
                           <div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Member } from '../../types';
+import { getMemberAvatar, handleAvatarError } from '../../utils/avatarHelper';
 import { QrCode, Trophy, Flame, Edit3, Trash2, Shield } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -92,8 +93,9 @@ export const MemberCard: React.FC<MemberCardProps> = ({
             className="relative cursor-pointer group/avatar shrink-0"
           >
             <img
-              src={member.avatar_url}
+              src={getMemberAvatar(member.avatar_url, member.full_name)}
               alt={member.full_name}
+              onError={(e) => handleAvatarError(e, member.full_name)}
               className="w-14 h-14 rounded-2xl object-cover border-2 border-slate-200 dark:border-pickle-border group-hover:border-pickle-lime transition-all group-hover/avatar:scale-105"
             />
             {isAdmin && (

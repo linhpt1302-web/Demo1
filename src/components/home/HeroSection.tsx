@@ -1,6 +1,7 @@
 import React from 'react';
 import { Member, Tournament } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { getMemberAvatar, handleAvatarError } from '../../utils/avatarHelper';
 import { Trophy, Award, UserPlus, Sparkles, ArrowRight } from 'lucide-react';
 
 interface HeroSectionProps {
@@ -123,8 +124,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               >
                 <div className="relative shrink-0">
                   <img
-                    src={top1.avatar_url}
+                    src={getMemberAvatar(top1.avatar_url, top1.full_name)}
                     alt={top1.full_name}
+                    onError={(e) => handleAvatarError(e, top1.full_name)}
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-amber-400 shadow-md group-hover:scale-105 transition-transform"
                   />
                   <div className="absolute -top-1 -right-1 px-1 py-0.2 rounded-full bg-amber-400 text-pickle-dark font-black text-[9px] shadow flex items-center gap-0.5">
@@ -156,8 +158,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               >
                 <div className="relative shrink-0">
                   <img
-                    src={top2.avatar_url}
+                    src={getMemberAvatar(top2.avatar_url, top2.full_name)}
                     alt={top2.full_name}
+                    onError={(e) => handleAvatarError(e, top2.full_name)}
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-slate-300 shadow-md group-hover:scale-105 transition-transform"
                   />
                   <div className="absolute -top-1 -right-1 px-1 py-0.2 rounded-full bg-slate-300 text-slate-900 font-black text-[9px] shadow flex items-center gap-0.5">
@@ -189,8 +192,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               >
                 <div className="relative shrink-0">
                   <img
-                    src={top3.avatar_url}
+                    src={getMemberAvatar(top3.avatar_url, top3.full_name)}
                     alt={top3.full_name}
+                    onError={(e) => handleAvatarError(e, top3.full_name)}
                     className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-cover border-2 border-orange-400 shadow-md group-hover:scale-105 transition-transform"
                   />
                   <div className="absolute -top-1 -right-1 px-1 py-0.2 rounded-full bg-orange-400 text-pickle-dark font-black text-[9px] shadow flex items-center gap-0.5">
